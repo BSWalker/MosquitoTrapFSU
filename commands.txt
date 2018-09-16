@@ -1,0 +1,85 @@
+This is a helpful compilation of useful commands for working with and configuring the raspberry pi from the command line:
+
+
+==================================== GENERAL CONFIGURATION ======================================
+
+
+sudo raspi-config           -- general config utility for changing various system settings
+alias name="command"        -- way to instantly create a custom alias for commonly used commands
+tree                        -- displays visual file tree. Modifiers: -a (all files and directories), -d (only directories), -L n (max depth n levels), -C (use colorized formatting)
+sudo login root             -- allows user to login with root priveleges to be able to access root folder and boot configurations
+
+
+=================================== UPDATING AND UPGRADING ======================================
+
+
+sudo apt-get update && upgrade     -- runs the system update service and install updates on the raspberry pi
+sudo apt install (name)		   -- install a package
+sudo apt update			   -- update the package index
+sudo apt upgrade		   -- upgrade the packages on the system
+apt-cache show (name)              -- get information about a package
+sudo apt remove (name)             -- remove a package from the system
+sudo apt-get autoremove		   -- clean up old packages
+sudo apt-get clean		   -- same function
+
+
+================================== SYSTEM SHUTDOWN COMMANDS =====================================
+
+
+sudo shutdown -h now          -- performs a safe system shutdown
+sudo reboot                   -- performs a system reboot
+
+
+===================================== WIFI CONFIGURATION ========================================
+
+
+ifconfig -a               -- shows the status of all networking connections
+sudo ifup wlan0           -- shows if the interface is up or configured
+sudo iwlist wlan0 scan    -- performs scan for wireless access points
+wavemon                   -- launches the wavemon utility for monitoring wifi connections
+
+
+================================= MOUNTING USB STORAGE DRIVE ===================================
+
+
+sudo blkid                -- shows list of sorage partitions (run this first)
+                          -- look for the location of the disk partition ex: /dev/sda1
+                          -- create a target folder to mount the partition to. Current target is /home/pi/usb_mount
+sudo mount /disk_partition_location /target_folder_location         -- mounts the partition to the target folder for access
+sudo mount /dev/sda1 /home/pi/usb_mount
+
+
+=================================== USEFUL COMMANDS ============================================
+
+
+cp -r source destination/           -- will copy an entire directory recursively from source to destination
+
+
+=================================== GITHUB COMMANDS ============================================
+
+git clone https://github.com/BSWalker/MosquitoTrapFSU.git    -- clones the online respository from github
+
+git status			        -- get the status of the branch, see if there are untracked or changed files
+echo "*.o" >> .gitignore                -- example to add files ending in .o to the ignore file so they won't be tracked or committed
+git add (. or fname)		        -- can add a file to the staging area or all the files in the folder to the staging area (will be tracked)
+git rm (filename)		        -- remove a file from the staging area
+git config --global user.name "name"    -- add user name to config file to track who made changes to remote repository
+bit config --global user.email email    -- add user email to config file to track contact info for those making changes to online repository
+git commit -m "description message"     -- commit changes to the local repository
+git commit -a "description message"     -- shortcut commits modified files directly to the local repository without first having to add
+git config --global push.default simple -- causes the default push method to be 'simple' following git2.0 preferred method
+git push                                -- pushes changes to the remote repository (dialogue requires username and password)
+				        -- user must be registered to make changes
+git pull				-- pulls from remote repository to make everything up to date
+git branch mybranch			-- creates a new project branch with the given name
+git checkout mybranch			-- switches current work to the specified branch
+git checkout master			-- switches back to the master branch
+git merge mybranch			-- (perform from master) merges master with branch. Applies changes in branch to master project
+git branch -d mybranch			-- deletes mybranch from the project. Merge with master first to avoid losing changes
+git init name				-- creates a wholly new repository
+git fetch				-- find out what has changed in master repository without merging
+git diff				-- show the changes that are to be committed
+git mv					-- move or rename a file or folder in the staging area
+git log					-- display the log of commits in the project history
+git tag					-- give a commit a name
+git show				-- get details about the current or other commit
