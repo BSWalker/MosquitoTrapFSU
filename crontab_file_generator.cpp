@@ -38,7 +38,7 @@ specify a system file.
 int main(int argc, char* argv[])
 {
 
-	if (argc > 2)
+	if (argc < 2)
 	{
 		std::cout << "This program requires an input file for processing. See the following CLI example: \n\n"
 			<< "crontab_file_gen.x AnyFileName.txt > AnyOutputFilename.txt\n\n"
@@ -60,24 +60,25 @@ int main(int argc, char* argv[])
 	unsigned int buffer;
 
 	// read the input file and organize into array
-	for (int i = 1; i < 31; ++i)
+	for (unsigned int d = 0; d < 31; ++d)
 	{
-		if ((infile >> buffer)) // tests each new line for failure, discards the leading 'day' number on each line
+		if (!(infile >> buffer)) // tests each new line for failure, discards the leading 'day' number on each line
 		{
 			std::cout << " *** Reached unexpected end of file. Aborting Program. *** \n";
 			exit(EXIT_FAILURE);
 		}
-		for (int j = 0; j < 12; ++j)
+
+		for (unsigned int m = 0; m < 12; ++m)
 		{
 			// compensate for varying end of month
-			if (i > daysInMonth[j])
+			if ((d+1) > daysInMonth[m]) // (d+1) prevents off-by-one error in comparison
 			{
-				++j; // incrememt past month that has ended to following month skipping extra white space 
+				++m; // incrememt past month that has ended to following month skipping extra white space 
 			}
 			infile >> buffer;
-			chart[i][j][SUNRISE] = (buffer - 100); // stop at 1 hour before sunrise
+			chart[m][d][SUNRISE] = (buffer - 100); // stop at 1 hour before sunrise
 			infile >> buffer; 
-			chart[i][j][SUNSET] = (buffer + 100); // start at 1 hour plus sunset
+			chart[m][d][SUNSET] = (buffer + 100); // start at 1 hour plus sunset
 		}
 	}
 
@@ -86,43 +87,46 @@ int main(int argc, char* argv[])
 	std::string startScript = "python3 /home/pi/mosquito/StartCollection.py\n";
 	std::string stopScript = "python3 /home/pi/mosquito/StopCollection.py\n";
 	std::string divider = "#========================================================#\n";
-	std::string welcome = "#=== WELCOME TO FSU MOSQUITO TRAP COLLECTION SCHEDULE ===#\n";
-	std::string boot = "#===                     ON BOOT                      ===#\n";
-	std::string jan = "#===                     JANUARY                      ===#\n";
-	std::string feb = "#===                     FEBRUARY                     ===#\n";
-	std::string mar = "#===                      MARCH                       ===#\n";
-	std::string apr = "#===                      APRIL                       ===#\n";
-	std::string may = "#===                       MAY                        ===#\n";
-	std::string jun = "#===                       JUNE                       ===#\n";
-	std::string jul = "#===                       JULY                       ===#\n";
-	std::string aug = "#===                      AUGUST                      ===#\n";
-	std::string sep = "#===                    SEPTEMBER                     ===#\n";
-	std::string oct = "#===                     OCTOBER                      ===#\n";
-	std::string nov = "#===                    NOVEMBER                      ===#\n";
-	std::string dec = "#===                    DECEMBER                      ===#\n";
+	std::string welcome = "#    WELCOME TO FSU MOSQUITO TRAP COLLECTION SCHEDULE    #\n";
+	std::string boot = "#                        ON BOOT                         #\n";
+	std::string jan = "#                        JANUARY                         #\n";
+	std::string feb = "#                        FEBRUARY                        #\n";
+	std::string mar = "#                         MARCH                          #\n";
+	std::string apr = "#                         APRIL                          #\n";
+	std::string may = "#                          MAY                           #\n";
+	std::string jun = "#                          JUNE                          #\n";
+	std::string jul = "#                          JULY                          #\n";
+	std::string aug = "#                         AUGUST                         #\n";
+	std::string sep = "#                       SEPTEMBER                        #\n";
+	std::string oct = "#                        OCTOBER                         #\n";
+	std::string nov = "#                       NOVEMBER                         #\n";
+	std::string dec = "#                       DECEMBER                         #\n";
 	std::string startTimes = "# Start Collection Times\n";
 	std::string stopTimes = "# Stop Collection Times\n";
 	std::string monthDividers[12] = { jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec };
-	unsigned int daysInMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 	// output the crontab file in usable format: minute hour dayOfMonth Month DayOfWeek(*) command
-	std::cout << divider << welcome << divider << '\n' << divider << boot << divider << '\n' << bootScript << '\n';
+	std::cout << divider << welcome << divider << '\n' << divider << boot << divider << '\n' << bootScript;
 
 	// write month by month
-	for (int i = 0; i < 12; ++i)
+	for (unsigned int i = 0; i < 12; ++i)
 	{
 		std::cout << '\n' << divider << monthDividers[i] << divider << '\n' << startTimes;
-		for (int j = 0; j < daysInMonth[i]; ++j)
+		for (unsigned int j = 0; j < daysInMonth[i]; ++j)
 		{
-			std::cout << (chart[i][j][SUNSET] % 100) << ' ' << (chart[i][j][SUNSET] / 100) << ' '
-				<< std::setfill('0') << std::setw(2) << j << ' ' << std::setw(2) << i << " * " << startScript;
+			std::cout << std::setfill('0') << std::setw(2) << (chart[i][j][SUNSET] % 100) << ' '
+				  << std::setfill('0') << std::setw(2)<< (chart[i][j][SUNSET] / 100) << ' '
+				  << std::setfill('0') << std::setw(2) << (j+1) << ' ' << std::setw(2) << (i+1)
+				  << " * " << startScript;
 		}
 
 		std::cout << '\n' << stopTimes;
-		for (int j = 0; j < daysInMonth[i]; ++j)
+		for (unsigned int j = 0; j < daysInMonth[i]; ++j)
 		{
-			std::cout << (chart[i][j][SUNRISE] % 100) << ' ' << (chart[i][j][SUNRISE] / 100) << ' '
-				<< std::setfill('0') << std::setw(2) << j << ' ' << std::setw(2) << i << " * " << startScript;
+			std::cout << std::setfill('0') << std::setw(2) << (chart[i][j][SUNRISE] % 100) << ' '
+				  << std::setfill('0') << std::setw(2) << (chart[i][j][SUNRISE] / 100) << ' '
+				  << std::setfill('0') << std::setw(2) << (j+1) << ' ' << std::setw(2) << (i+1)
+				  << " * " << stopScript;
 		}
 	}
 }
