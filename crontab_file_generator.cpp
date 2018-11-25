@@ -5,22 +5,29 @@ crontab_file_generator.cpp
 Author: Steven B. Walker
 Date:   9/17/18
 
-This program is developed in support of the FSU mosquito trap project which operates 
-on the Raspberry Pi platform running  an embedded Linux operating system Raspbian 
-Stretch. The trap components are switched on at an hour after sunset, and collection 
-ends at an hour before sunrise. An RTC keeps the time in between power cycles, and 
-crontab is used as a task scheduler with start and stop times entered for every day 
+This program is developed in support of the FSU mosquito trap project which operates
+on the Raspberry Pi platform running  an embedded Linux operating system Raspbian
+Stretch. The trap components are switched on at an hour after sunset, and collection
+ends at an hour before sunrise. An RTC keeps the time in between power cycles, and
+crontab is used as a task scheduler with start and stop times entered for every day
 of the year.
 
-This program accepts as an input file a table of sunrise and sunset times provided by 
+This program accepts as an input file a table of sunrise and sunset times provided by
 http://aa.usno.navy.mil/data/docs/RS_OneYear.php
 Follow the instructions for copying ONLY the numbers and not the month text into a simple
-text file. The file will be read and stored, then used to generate crontab formatted 
-entries for the entire year, with hour offsets to correspond to proper start and stop times.
+text file. The file will be read and stored, then used to generate crontab formatted
+entries for the entire year, with user entered offsets to correspond to proper start and stop times.
+
+The second and third arguments are the offsets before and after sunrise and sunset. These must be
+integer arguments between -12 and 5 for sunset and -4 and 12 for sunrise.
 
 Proper linux command line invocation is as follows:
 
-crontab_file_gen.x AnyFileName.txt > AnyOutputFilename.txt
+crontab_file_gen.x AnyFileName.txt SR_Offset SS_Offset > AnyOutputFilename.txt
+
+Alternatively the output from the program can be piped directly into Crontab
+
+crontab_file_gen.x AnyFileName.txt SR_Offset SS_Offset | crontab
 
 The program will print the output to the screen unless the redirection operator is used to
 specify a system file.
@@ -31,19 +38,33 @@ specify a system file.
 #include <string>
 #include <fstream>
 #include <iomanip>
+#include <stdlib.h>
+#include <errno.h>
 
 #define SUNRISE 0
 #define SUNSET  1
 
+void PrintInitErrorMssg();
+
 int main(int argc, char* argv[])
 {
-
-	if (argc < 2)
+	// verify valid number of arguments supplied
+	if(argc < 4)
 	{
-		std::cout << "This program requires an input file for processing. See the following CLI example: \n\n"
-			<< "crontab_file_gen.x AnyFileName.txt > AnyOutputFilename.txt\n\n"
-			<< "Input files can be generated at http://aa.usno.navy.mil/data/docs/RS_OneYear.php";
-		exit(EXIT_FAILURE);
+		PrintInitErrorMssg();
+	}
+
+	char *p;
+	char *p2;
+	errno = 0;
+	long SR_offset = strtol(argv[2], &p, 10);
+	long SS_offset = strtol(argv[3], &p2, 10);
+
+	// check for validity of input arguments
+	if (argc < 4 || errno != 0 || *p != '\0' || *p2 != '\0' || SR_offset < -4
+	    || SR_offset > 12 || SS_offset < -12 || SS_offset > 5) 
+	{
+		PrintInitErrorMssg();
 	}
 
 	std::ifstream infile;
@@ -57,7 +78,7 @@ int main(int argc, char* argv[])
 	// declare local variables if file open successful
 	unsigned int chart[12][31][2] = { 0 }; // 12 months by 31 days by 2 events
 	unsigned int daysInMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	unsigned int buffer;
+	int buffer;
 
 	// read the input file and organize into array
 	for (unsigned int d = 0; d < 31; ++d)
@@ -76,9 +97,9 @@ int main(int argc, char* argv[])
 				++m; // incrememt past month that has ended to following month skipping extra white space 
 			}
 			infile >> buffer;
-			chart[m][d][SUNRISE] = (buffer - 100); // stop at 1 hour before sunrise
+			chart[m][d][SUNRISE] = (buffer + (int)SR_offset * 100); // stop at 1 hour before sunrise
 			infile >> buffer; 
-			chart[m][d][SUNSET] = (buffer + 100); // start at 1 hour plus sunset
+			chart[m][d][SUNSET] = (buffer + (int)SS_offset * 100); // start at 1 hour plus sunset
 		}
 	}
 
@@ -132,3 +153,12 @@ int main(int argc, char* argv[])
 }
 
 
+void PrintInitErrorMssg()
+{
+	std::cout << "This program requires an input file for processing. See the following CLI example: \n\n"
+		  << "crontab_file_gen.x AnyFileName.txt SR_offset SS_offset | crontab\n\n"
+		  << "SR_offset = sunrise offset and must be an integer between -4 and 12\n"
+		  << "SS_offset = sunset offset and must be an integer between -12 and 5\n"
+		  << "Input files can be generated at http://aa.usno.navy.mil/data/docs/RS_OneYear.php\n\n";
+	exit(EXIT_FAILURE);
+}

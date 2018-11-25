@@ -37,6 +37,8 @@ ifconfig -a               -- shows the status of all networking connections
 sudo ifup wlan0           -- shows if the interface is up or configured
 sudo iwlist wlan0 scan    -- performs scan for wireless access points
 wavemon                   -- launches the wavemon utility for monitoring wifi connections
+ssh mosqtrap@trap-def.local  -- will ssh into a trap unit connected to the base unit
+ssh <user>@<hostname>.local  -- generic form of ssh command
 
 
 ================================= MOUNTING USB STORAGE DRIVE ===================================

@@ -1,5 +1,5 @@
 /*
-MosSharedMem.h contains headers for a shared memory wrapper with exception class extension to be used with the 
+MosqSharedMem.h contains headers for a shared memory wrapper with exception class extension to be used with the 
 FSU Mosquito Trap Project with software implemented on the Raspberry Pi platform. This library will allow all the device drivers
 and other programs to communicate via shared memory, allowing them to have separate program implemenations. This program is loosely
 based upon an example found at:
@@ -12,8 +12,8 @@ Date:   11/20/18
 
 #pragma once
 
-#ifndef _MOSSHAREDMEM_H
-#define _MOSSHAREDMEM_H
+#ifndef _MOSQSHM_H
+#define _MOSQSHM_H
 
 #include <string>
 #include <sys/mman.h>
@@ -22,7 +22,7 @@ Date:   11/20/18
 #include <semaphore.h>
 
 // exception class signals a problem with the execution of a shared memory call
-// for MosSharedMem. Inherits from std::exception
+// for MosqSharedMem. Inherits from std::exception
 
 class MSMexception : public std::exception
 {
@@ -32,8 +32,8 @@ public:
 	// @param bSysMsg true if system message(from strerror(errno))
 	//should be postfixed to the user provided message
 
-	MSMexception(const std::string &message, bool bSysMsg = false) throw();
-	~MSMexception() throw();
+	MSMexception(const std::string &message) : m_sMsg(message) {}
+	~MSMexception() throw() {}
 
 	// Returns a pointer to the (constant) error description.
 	// @return A pointer to a \c const \c char*. The underlying memory
@@ -46,7 +46,7 @@ protected:
 };
 
 // shared memory class
-class MosSharedMem
+class MosqSharedMem
 {
 public:
 	enum { C_READ_ONLY = O_RDONLY, C_READ_WRITE = O_RDWR } CREATE_MODE;
@@ -56,35 +56,33 @@ public:
 public:
 	// constructor - destructor
 	// constructor requires attach mode: A_READ, A_WRITE, or (A_READ | A_WRITE)
-	explicit MosSharedMem (int);
-	~MosSharedMem ();
+	explicit MosqSharedMem (int);
+	~MosqSharedMem ();
 
 	// shared data update and retreive functions - outside API
-	void SetFanRPM      (int);
-	void SetTotalFanRev (int);
-	void SetBattVoltage (int);
-	void SetTemperature (int);
-	void SetCO2Pressure (int);
+	void SetFanRPM      (const int&);
+	void SetTotalFanRev (const int&);
+	void SetBattVoltage (const int&);
+	void SetTemperature (const int&);
+	void SetCO2Pressure (const int&);
 
-	int GetFanRPM      (void);
-	int GetTotalFanRev (void);
-	int GetBattVoltage (void);
-	int GetTemperature (void);
-	int GetCO2Pressure (void);
+	int GetFanRPM      (void) const;
+	int GetTotalFanRev (void) const;
+	int GetBattVoltage (void) const;
+	int GetTemperature (void) const;
+	int GetCO2Pressure (void) const;
 
+	void Dump (); // for development
 private:
 	// shared memory operations - implemented privately for simplified public API
-	bool  isMemCreated ();
 	bool  Create  (size_t nSize, int mode = C_READ_WRITE);
 	bool  Attach  (int mode = A_READ | A_WRITE);
-	bool  Detach  ();
-	bool  Lock    ();
-	bool  UnLock  ();
+	void  Detach  ();
+	void  Lock    () const;
+	void  UnLock  () const;
 	int   GetID   () { return m_iD; }
-	void* GetData () { return m_Ptr; };
-	const void* GetData () const { return m_Ptr; }
+	void  Clear();
 
-	void Clear();
 private:
 	struct SensorData // embedded struct declaration to encapsulate data in shared memory
 	{
@@ -94,14 +92,13 @@ private:
 		int temperature;
 		int CO2pressure;
 	};
+
 private:
-	SensorData realTimeData;
-	SensorData* realTimeData_ptr;
 	std::string m_sName;
 	int m_iD;
 	sem_t* m_SemID;
 	size_t m_nSize;
-	//void* m_Ptr;
+        SensorData* realTimeData_ptr;
 };
 
 
