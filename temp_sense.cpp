@@ -17,8 +17,8 @@ int main (void) {
     char path[] = "/sys/bus/w1/devices"; 
     ssize_t numRead;
  
-    //MosqSharedMem myShm;
-    //myShm.RegisterPID(); // register PID with master to enable shutdown
+    MosqSharedMem myShm(MosqSharedMem::A_WRITE);
+    myShm.RegisterPID(); // register PID with master to enable shutdown
 
     dir = opendir (path);
     if (dir != NULL)
@@ -29,7 +29,7 @@ int main (void) {
             strstr(dirent->d_name, "28-") != NULL) 
         { 
             strcpy(dev, dirent->d_name);
-            printf("\nDevice: %s\n", dev);
+//            printf("\nDevice: %s\n", dev);
         }
         (void) closedir (dir);
     }
@@ -55,9 +55,11 @@ int main (void) {
         {
             strncpy(tmpData, strstr(buf, "t=") + 2, 5); 
             float tempC = strtof(tmpData, NULL);
-            printf("Device: %s  - ", dev); 
-            printf("Temp: %.3f C  ", tempC / 1000);
-            printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
+
+		myShm.SetTemperature((tempC/1000)*9/5+32);
+         //   printf("Device: %s  - ", dev); 
+       //     printf("Temp: %.3f C  ", tempC / 1000);
+     //       printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
         }
         close(fd);
     } 

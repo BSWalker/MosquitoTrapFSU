@@ -12,14 +12,20 @@ Date:   11/23/18
 #include <unistd.h>
 #include <cstring>
 #include <cstdlib>
+#include <signal.h>
+
+void SIGQUIT_handler(int);
 
 int main()
 {
 	int temp;
-	try
-	{
+    
+    if( signal(SIGQUIT, SIGQUIT_handler) == SIG_ERR) // register handler
+    {
+        std::cout << "Error registering siquit handler\n";
+    }
 		MosqSharedMem myMem(MosqSharedMem::A_READ | MosqSharedMem::A_WRITE);
-
+        myMem.RegisterPID();
 		myMem.Dump();
 
 		std::cout << "Input fan RPM: ";
@@ -66,10 +72,17 @@ int main()
                 std::cout << "The total revolutions are: " 
                           << myMem.GetTotalFanRev() << '\n';
 
-	}
-	catch (std::exception& ex)
-	{
-		std::cout << "\nException:" << ex.what();
-	}
+	myMem.PrintErrMsg("Test Message");
+
+    std::cin.ignore(5);
+    std::cin.get(); // delay until other program shuts down
+    
 	return 0;
+}
+
+void SIGQUIT_handler(int sig)
+{
+    signal(sig, SIG_IGN);
+    std::cout << "\nReceived kill signal from host program!\n";
+    exit(0);
 }

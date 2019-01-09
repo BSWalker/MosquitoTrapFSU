@@ -15,34 +15,37 @@ Date:   11/23/18
 
 int main()
 {
-	int temp;
-	try
-	{
-		MosqSharedMem myMem(MosqSharedMem::A_READ | MosqSharedMem::A_WRITE);
+    int temp;
 
-		myMem.Dump();
+    MosqSharedMem myMem(MosqSharedMem::A_READ | MosqSharedMem::A_WRITE);
 
-		std::cout << "\npassed constructor";
-		std::cout << "\nThe fan RPM is: " << myMem.GetFanRPM();
-                std::cout << "\nThe total revolutions are: " << myMem.GetTotalFanRev();
-                std::cout << "\nThe battery voltage is: " << myMem.GetBattVoltage();
-                std::cout << "\nThe temperature is: " << myMem.GetTemperature();
-                std::cout << "\nThe line pressure is: " << myMem.GetCO2Pressure() << '\n';
+    myMem.Dump();
 
-		while (temp != -1)
-		{
-		std::cout << "Input fan RPM: ";
-                std::cin >> temp;
-                myMem.SetFanRPM(temp);
-		std::cout << "The new fan RPM is: " << myMem.GetFanRPM() << '\n';
-		}
+    std::cout << "\npassed constructor";
+    std::cout << "\nThe fan RPM is: " << myMem.GetFanRPM();
+    std::cout << "\nThe total revolutions are: " << myMem.GetTotalFanRev();
+    std::cout << "\nThe battery voltage is: " << myMem.GetBattVoltage();
+    std::cout << "\nThe temperature is: " << myMem.GetTemperature();
+    std::cout << "\nThe line pressure is: " << myMem.GetCO2Pressure() << '\n';
 
-        myMem.Dump();
-	}
-	catch (std::exception& ex)
-	{
-		std::cout << "\nException:" << ex.what();
-	}
+    while (temp != -1)
+    {
+        std::cout << "Input fan RPM: ";
+        std::cin >> temp;
+        myMem.SetFanRPM(temp);
+        std::cout << "The new fan RPM is: " << myMem.GetFanRPM() << '\n';
+    }
 
-	return 0;
+    myMem.Dump();
+    
+    std::cout << "Press any key to test kill function...\n";
+    std::cin.ignore(5);
+    std::cin.get();
+
+    myMem.ReleaseSensors();
+
+    std::cout << "\nProgram 2 should be dead now. Press any key to exit.\n";
+    std::cin.get();
+
+    return 0;
 }

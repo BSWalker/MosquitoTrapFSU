@@ -1,8 +1,8 @@
 /*
-MosqSharedMem.cpp contains implementations for a shared memory wrapper with exception class extension to be used with the
-FSU Mosquito Trap Project with software implemented on the Raspberry Pi platform. This library will allow all the device drivers
-and other programs to communicate via shared memory, allowing them to have separate program implemenations. This program is loosely
-based upon an example found at:
+MosqSharedMem.cpp contains implementations for a shared memory wrapper with exception class 
+extension to be used with the FSU Mosquito Trap Project with software implemented on the 
+Raspberry Pi platform. This library will allow all the device drivers and other programs to communicate via shared memory, allowing them to have separate program implemenations. This 
+program is loosely based upon an example found at:
 
 https://cppcodetips.wordpress.com/2015/02/28/c-wrapper-class-for-shared-memory/
 
@@ -13,23 +13,39 @@ Date:   11/20/18
 #include <string>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <semaphore.h>
 #include <iostream>
+#include <fstream>
+#include <time.h>
+#include <cstring>
 #include "mosq_shm.h"
+
 
 const std::string MosqSharedMem::lockSemaphoreName = "/mosemaphore";
 
 MosqSharedMem::MosqSharedMem(int at_mode) :m_sName("mosMemory"), m_iD(-1),
-m_SemID(NULL), m_nSize(0), realTimeData_ptr(NULL)
+m_SemID(NULL), m_nSize(0), m_realTimeData_ptr(NULL), m_errFile("/home/pi/Mosquito_Log/error_log.txt")
 {
-	// Semaphore open
-	m_SemID = sem_open(lockSemaphoreName.c_str(), O_CREAT, S_IRUSR | S_IWUSR, 1);
+	try
+	{
+		// Semaphore open
+		m_SemID = sem_open(lockSemaphoreName.c_str(), O_CREAT, S_IRUSR | S_IWUSR, 1);
 
-	// create and attach data																	//avoiding subsequent calls to shm_open
-	Create(sizeof(SensorData));
-	Attach(at_mode);
+        // create and attach data
+		Create(sizeof(SensorData));
+		Attach(at_mode);
+	}
+	catch (std::exception& ex)
+    {
+        PrintErrMsg(ex.what());
+		exit(1);
+    }
 }
 
 MosqSharedMem::~MosqSharedMem()
@@ -38,7 +54,7 @@ MosqSharedMem::~MosqSharedMem()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-//				SHARED MEMORY FUNCTIONS					  //
+//			                	SHARED MEMORY FUNCTIONS	                				  //
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 bool MosqSharedMem::Create(size_t nSize, int mode /*= READ_WRITE*/)
@@ -83,8 +99,8 @@ bool MosqSharedMem::Create(size_t nSize, int mode /*= READ_WRITE*/)
 bool MosqSharedMem::Attach(int mode /*= A_READ | A_WRITE*/)
 {
 	/* requesting the shared segment    --  mmap() */
-	realTimeData_ptr = (SensorData*)mmap(NULL, m_nSize, mode, MAP_SHARED, m_iD, 0);
-	if (realTimeData_ptr == NULL)
+	m_realTimeData_ptr = (SensorData*)mmap(NULL, m_nSize, mode, MAP_SHARED, m_iD, 0);
+	if (m_realTimeData_ptr == NULL)
 	{
 		throw MSMexception("Exception in attaching the shared memory region");
 	}
@@ -94,7 +110,7 @@ bool MosqSharedMem::Attach(int mode /*= A_READ | A_WRITE*/)
 
 void MosqSharedMem::Detach()
 {
-	munmap(realTimeData_ptr, m_nSize);
+	munmap(m_realTimeData_ptr, m_nSize);
 }
 
 void MosqSharedMem::Lock() const
@@ -116,21 +132,20 @@ void MosqSharedMem::Clear()
 //			perror("shm_unlink");
 		}
 	}
-	/**
-	* Semaphore unlink: Remove a named semaphore  from the system.
-	*/
+	
+	// Semaphore unlink: Remove a named semaphore  from the system.
+	
 	if (m_SemID != NULL)
 	{
-		/**
-		* Semaphore Close: Close a named semaphore
-		*/
+		// Semaphore Close: Close a named semaphore
+		
 		if (sem_close(m_SemID) < 0)
 		{
 //			perror("sem_close");
 		}
-		/**
-		* Semaphore unlink: Remove a named semaphore  from the system.
-		*/
+		
+		// Semaphore unlink: Remove a named semaphore  from the system.
+		
 		if (sem_unlink(lockSemaphoreName.c_str()) < 0)
 		{
 //			perror("sem_unlink");
@@ -139,49 +154,49 @@ void MosqSharedMem::Clear()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////
-//				DATA ACCESS FUNCTIONS	                   		  //
-////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+//		               		DATA ACCESS FUNCTIONS                		  //
+////////////////////////////////////////////////////////////////////////////
 
 void MosqSharedMem::SetFanRPM(const int& rpm)
 {
 	Lock();
-	realTimeData_ptr->fanRPM = rpm;
+	m_realTimeData_ptr->fanRPM = rpm;
 	UnLock();
 }
 
-void MosqSharedMem::SetTotalFanRev(const int& tr)
+void MosqSharedMem::SetTotalFanRev(const long int& tr)
 {
 	Lock();
-	realTimeData_ptr->totalFanRotations = tr;
+	m_realTimeData_ptr->totalFanRotations = tr;
 	UnLock();
 }
 
 void MosqSharedMem::SetBattVoltage(const int& bv)
 {
 	Lock();
-	realTimeData_ptr->battVoltage = bv;
+	m_realTimeData_ptr->battVoltage = bv;
 	UnLock();
 }
 
-void MosqSharedMem::SetTemperature(const int& tp)
+void MosqSharedMem::SetTemperature(const float& tp)
 {
 	Lock();
-	realTimeData_ptr->temperature = tp;
+	m_realTimeData_ptr->temperature = tp;
 	UnLock();
 }
 
 void MosqSharedMem::SetCO2Pressure(const int& pr)
 {
 	Lock();
-	realTimeData_ptr->CO2pressure = pr;
+	m_realTimeData_ptr->CO2pressure = pr;
 	UnLock();
 }
 
 int MosqSharedMem::GetFanRPM(void) const
 {
 	Lock();
-	int temp = realTimeData_ptr->fanRPM;
+	int temp = m_realTimeData_ptr->fanRPM;
 	UnLock();
 	return temp;
 }
@@ -189,7 +204,7 @@ int MosqSharedMem::GetFanRPM(void) const
 int MosqSharedMem::GetTotalFanRev(void) const
 {
 	Lock();
-	int temp = realTimeData_ptr->totalFanRotations;
+	int temp = m_realTimeData_ptr->totalFanRotations;
 	UnLock();
 	return temp;
 }
@@ -197,15 +212,15 @@ int MosqSharedMem::GetTotalFanRev(void) const
 int MosqSharedMem::GetBattVoltage(void) const
 {
 	Lock();
-	int temp = realTimeData_ptr->battVoltage;
+	int temp = m_realTimeData_ptr->battVoltage;
 	UnLock();
         return temp;
 }
 
-int MosqSharedMem::GetTemperature(void) const
+float MosqSharedMem::GetTemperature(void) const
 {
 	Lock();
-	int temp = realTimeData_ptr->temperature;
+	int temp = m_realTimeData_ptr->temperature;
         UnLock();
         return temp;
 }
@@ -213,11 +228,12 @@ int MosqSharedMem::GetTemperature(void) const
 int MosqSharedMem::GetCO2Pressure(void) const
 {
 	Lock();
-	int temp = realTimeData_ptr->CO2pressure;
+	int temp = m_realTimeData_ptr->CO2pressure;
         UnLock();
         return temp;
 }
 
+// utility for debug purposes
 void MosqSharedMem::Dump ()
 {
         int s = 0;
@@ -229,6 +245,42 @@ void MosqSharedMem::Dump ()
 		  << "m_iD    = " << m_iD << '\n'
 		  << "m_SemID = " << m_SemID << "  (pointer address)\n"
 		  << "m_nSize = " << m_nSize << '\n'
-		  << "dataptr = " << realTimeData_ptr << "  (pointer address)\n"
-		  << "semValu = " << *sval << "\n\n";
+		  << "dataptr = " << m_realTimeData_ptr << "  (pointer address)\n"
+		  << "semValu = " << *sval << "\n";
+    std::cout << "Registered PIDs:\n";
+    for (size_t i = 0; i < m_realTimeData_ptr->numProcesses; ++i)
+        std::cout << m_realTimeData_ptr->procPIDs[i] << '\n';
 }
+
+// allows sensor processes to register process IDs to shared memory
+// this allows for central program to initiate shutown of these
+// dependent processes when ReleaseSensors() is called
+void MosqSharedMem::RegisterPID ()
+{
+    m_realTimeData_ptr->procPIDs[m_realTimeData_ptr->numProcesses] = getpid();
+    ++m_realTimeData_ptr->numProcesses;
+}
+
+void MosqSharedMem::ReleaseSensors()
+{
+    for (size_t i = 0; i < m_realTimeData_ptr->numProcesses; ++i)
+        kill(m_realTimeData_ptr->procPIDs[i], SIGQUIT);
+}
+
+void MosqSharedMem::PrintErrMsg (const char* msg)
+{
+	std::ofstream errfile;
+	errfile.open(m_errFile.c_str(), std::ios::out | std::ios::app);
+
+	time_t rawtime;
+	time(&rawtime);
+	struct tm* timeDate = localtime(&rawtime);
+
+	char* timestamp = asctime(timeDate);
+	timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
+
+	errfile << timestamp << ": SHM INIT ERROR -- " << msg << '\n';
+	errfile.close();
+}
+
+

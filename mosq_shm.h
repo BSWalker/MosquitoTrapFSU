@@ -20,6 +20,7 @@ Date:   11/20/18
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <vector>
 
 // exception class signals a problem with the execution of a shared memory call
 // for MosqSharedMem. Inherits from std::exception
@@ -61,18 +62,21 @@ public:
 
 	// shared data update and retreive functions - outside API
 	void SetFanRPM      (const int&);
-	void SetTotalFanRev (const int&);
+	void SetTotalFanRev (const long int&);
 	void SetBattVoltage (const int&);
-	void SetTemperature (const int&);
+	void SetTemperature (const float&);
 	void SetCO2Pressure (const int&);
 
-	int GetFanRPM      (void) const;
-	int GetTotalFanRev (void) const;
-	int GetBattVoltage (void) const;
-	int GetTemperature (void) const;
-	int GetCO2Pressure (void) const;
+	int   GetFanRPM      (void) const;
+	int   GetTotalFanRev (void) const;
+	int   GetBattVoltage (void) const;
+	float GetTemperature (void) const;
+	int   GetCO2Pressure (void) const;
 
 	void Dump (); // for development
+    void RegisterPID();
+    void ReleaseSensors();
+    void PrintErrMsg (const char*); // record error message to persistent log file
 private:
 	// shared memory operations - implemented privately for simplified public API
 	bool  Create  (size_t nSize, int mode = C_READ_WRITE);
@@ -86,19 +90,22 @@ private:
 private:
 	struct SensorData // embedded struct declaration to encapsulate data in shared memory
 	{
-		int fanRPM;
-		int totalFanRotations;
-		int battVoltage;
-		int temperature;
-		int CO2pressure;
-	};
+		int      fanRPM;
+		long int totalFanRotations;
+		int      battVoltage;
+		float    temperature;
+		int      CO2pressure;
+        pid_t    procPIDs[10];
+        size_t   numProcesses;
+    };
 
 private:
 	std::string m_sName;
-	int m_iD;
-	sem_t* m_SemID;
-	size_t m_nSize;
-        SensorData* realTimeData_ptr;
+	int              m_iD;
+	sem_t*           m_SemID;
+	size_t           m_nSize;
+    SensorData*      m_realTimeData_ptr;
+	std::string      m_errFile;
 };
 
 
