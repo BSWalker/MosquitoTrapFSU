@@ -37,20 +37,24 @@ int main (int argc, char* argv[])
 
     wiringPiSetup();
 
-    wiringPiISR(4, INT_EDGE_FALLING, &fan0_interrupt);
-    wiringPiISR(5, INT_EDGE_FALLING, &fan1_interrupt);
+    wiringPiISR(0, INT_EDGE_FALLING, &fan0_interrupt);
+    wiringPiISR(1, INT_EDGE_FALLING, &fan1_interrupt);
 
     while (1) // repeat until master kills program via pid
     {
         delay(1000);
         count[0] = (globalCounter[0] - lastCount[0])/2;
-        myShm.SetFanRPM((count[0] * 60));
+	count[1] = (globalCounter[1] - lastCount[1])/2;
+        myShm.SetFan1RPM((count[0] * 60));
+	myShm.SetFan2RPM((count[1] * 60));
         myShm.SetTotalFanRev(globalCounter[0]/2);
         lastCount[0] = globalCounter[0];
+	lastCount[1] = globalCounter[1];
 
         if(verbose) 
         {
-            std::cout << "\nFan RPM = " << (count[0] * 60) << " || Total Rev = " << (globalCounter[0]/2);
+            std::cout << "\nFan 1 RPM = " << (count[0] * 60) << " || Total Rev = " << (globalCounter[0]/2);
+            std::cout << "\nFan 2 RPM = " << (count[1] * 60) << " || Total Rev = " << (globalCounter[1]/2);
         }
     }
 }

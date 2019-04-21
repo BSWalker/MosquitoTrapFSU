@@ -61,17 +61,19 @@ public:
 	~MosqSharedMem ();
 
 	// shared data update and retreive functions - outside API
-	void SetFanRPM      (const int&);
+	void SetFan1RPM     (const int&);
+	void SetFan2RPM     (const int&);
 	void SetTotalFanRev (const long int&);
-	void SetBattVoltage (const int&);
+	void SetBattVoltage (const float&);
 	void SetTemperature (const float&);
-	void SetCO2Pressure (const int&);
+	void SetCO2Pressure (const float&);
 
-	int   GetFanRPM      (void) const;
-	int   GetTotalFanRev (void) const;
-	int   GetBattVoltage (void) const;
+	int   GetFan1RPM      (void) const;
+	int   GetFan2RPM      (void) const;
+	long int   GetTotalFanRev (void) const;
+	float   GetBattVoltage (void) const;
 	float GetTemperature (void) const;
-	int   GetCO2Pressure (void) const;
+	float   GetCO2Pressure (void) const;
 
 	void Dump (); // for development
     void RegisterPID();
@@ -90,11 +92,12 @@ private:
 private:
 	struct SensorData // embedded struct declaration to encapsulate data in shared memory
 	{
-		int      fanRPM;
+		int      fan1RPM;
+		int      fan2RPM;
 		long int totalFanRotations;
-		int      battVoltage;
+		float      battVoltage;
 		float    temperature;
-		int      CO2pressure;
+		float      CO2pressure;
         pid_t    procPIDs[10];
         size_t   numProcesses;
     };
