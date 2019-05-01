@@ -301,9 +301,9 @@ class TestApplication(Application):
     Application.__init__(self, bus)
     self.add_service(TestService(bus, 0))
 
-  def StartWatchForTest(self):
-    w = Thread(target=self.services[0].WatchForTestRequest())
-    w.start()
+#  def StartWatchForTest(self):
+#    w = Thread(target=self.services[0].WatchForTestRequest())
+#    w.start()
     
 
 class TestAdvertisement(Advertisement):
@@ -372,7 +372,6 @@ def main():
                                    reply_handler=register_ad_cb,
                                    error_handler=register_ad_error_cb)
 
-  app.StartWatchForTest()
 
   try:
     mainloop.run()

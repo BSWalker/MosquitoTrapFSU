@@ -38,17 +38,26 @@ myMem.RegisterPID(); //register PID
 
   pinMode(120, INPUT); //sets imaginary pin as input
  
-
-
-  for (int i = 0; i < 60; ++i)
+float maxV = 0;
+  while (1)
+{
+  for (int i = 0; i < 20; ++i)
    {
     value = analogRead(120);  //uses analogRead function to retrive value
-    battVoltage = (value * 5 / 255)*(1150.0/470.0); //multiplies the read value by the reference voltage and divides by the number of 2 to the 8th, ie the PCF8591 is an 8 bit ADC;
+    battVoltage = (value * 5.0 / 255.0)*(1200.0/470.0); //multiplies the read value by the reference voltage and divides by the number of 2 to the 8th, ie the PCF8591 is an 8 bit ADC;
+    if (battVoltage > maxV)
+       maxV = battVoltage;
     //std::cout << "\nRawValue: " << std::setw(5) << value;
     //std::cout << "\nBattVoltage: " << std::setw(5) << battVoltage; //outputs battery voltage on screen
-    myMem.SetBattVoltage(battVoltage); //writes battery voltage to shared memory
-    delay(1000); 
+    //std::cout << ".";
+    delay(100); 
    }
+
+   myMem.SetBattVoltage((float)maxV); //writes battery voltage to shared memory
+
+   //std::cout << "\nVoltage: " << std::setw(5) << maxV;
+
+}
 
  return 0;
 

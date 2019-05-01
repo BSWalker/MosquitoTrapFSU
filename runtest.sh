@@ -1,3 +1,5 @@
 ./fansense.x &
 ./tempsense.x &
-./sensortest.x
+./adc.x &
+./pressure_sensor.x &
+./trap_test.x v

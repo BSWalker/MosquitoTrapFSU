@@ -37,8 +37,8 @@ int main (int argc, char* argv[])
 
     wiringPiSetup();
 
-    wiringPiISR(0, INT_EDGE_FALLING, &fan0_interrupt);
-    wiringPiISR(1, INT_EDGE_FALLING, &fan1_interrupt);
+    wiringPiISR(6, INT_EDGE_FALLING, &fan0_interrupt);
+    wiringPiISR(25, INT_EDGE_FALLING, &fan1_interrupt);
 
     while (1) // repeat until master kills program via pid
     {

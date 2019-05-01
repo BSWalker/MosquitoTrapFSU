@@ -17,17 +17,15 @@
 int main(void)
 {
     //variables for pins to make code more readable
-    int fan1 = 11;
-    int fan2 =13;
+    int fan1 = 15;
 
+    wiringPiSetup();
     //setting up GPIO pins
 
     pinMode(fan1, OUTPUT);
-    pinMode(fan2, OUTPUT);
 
-    digitalWrite(fan1, HIGH);
-    digitalWrite(fan2, HIGH);
-    
+    digitalWrite(fan1, HIGH);;
+
     return 0;
 }
 

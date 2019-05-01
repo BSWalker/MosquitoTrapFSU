@@ -44,6 +44,7 @@ char* timestamp = asctime(timeDate);
 timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
 testLog << timestamp << "|| Starting Trap test on boot\n";
 */
+    wiringPiSetup();
     //setting up GPIO pins
     pinMode(fan1, OUTPUT);
     //pinMode(fan2, OUTPUT);
@@ -127,16 +128,25 @@ void TestVerbose()
     
     digitalWrite(fan1, LOW);
 
+float batt = 0;
+float temp = 0;
+float press = 0;
 
-    for(int i = 0; i < 30; ++i)
+    for(int i = 0; i < 5; ++i)
+	delay(1000);
+
+    for(int i = 0; i < 60; ++i)
     {
-        std::cout << "\nFan 1 RPM:" << std::setw(5) << myMem.GetFan1RPM();
-        std::cout << "\nFan 2 RPM:" << std::setw(5) << myMem.GetFan2RPM();
-        std::cout << "\nTotal Rev:" << std::setw(5) << myMem.GetTotalFanRev();
-        std::cout << "\nBatt Volt:" << std::setw(5) << myMem.GetBattVoltage();
-        std::cout << "\nAir Temp:" << std::setw(5) << myMem.GetTemperature();
-        std::cout << "\nPressure:" << std::setw(5) << myMem.GetCO2Pressure();
-        std::cout << std::string(100,'\n'); // clears the screen
+batt = myMem.GetBattVoltage();
+temp = myMem.GetTemperature();
+press = myMem.GetCO2Pressure();
+
+        std::cout << "\nFan1:" << std::setw(6) << myMem.GetFan1RPM() << " rpm";
+        std::cout << "  |  Fan2:" << std::setw(6) << myMem.GetFan2RPM() << " rpm";
+        std::cout << "  |  Revolutions:" << std::setw(8) << myMem.GetTotalFanRev();
+        std::cout << "  |  Battery:" << std::setw(8) << std::setprecision(4) << batt << "V";;
+        std::cout << "  |  Temperature:" << std::setw(8) << std::setprecision(4) << temp << " F";
+        std::cout << "  |  Pressure: " << std::setw(8) << std::setprecision(3) << press << " psi";
         
         if(i == 15)
             digitalWrite(solenoid, HIGH);
@@ -144,6 +154,7 @@ void TestVerbose()
         delay(1000);                              
     }
     
+    std::cout << "\n\n";
     digitalWrite(fan1, HIGH);
     digitalWrite(solenoid, LOW);
 

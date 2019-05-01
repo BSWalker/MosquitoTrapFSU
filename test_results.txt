@@ -1,0 +1,74 @@
+Current shared memory status: 
+
+m_sName = mosMemory
+m_iD    = 4
+m_SemID = 0xb6f66000  (pointer address)
+m_nSize = 68
+dataptr = 0xb6f65000  (pointer address)
+semValu = 1
+Registered PIDs:
+694
+696
+693
+
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     172  |  Battery:   12.62V  |  Temperature:   72.95 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2880 rpm  |  Revolutions:     221  |  Battery:   12.62V  |  Temperature:   72.95 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     269  |  Battery:   12.62V  |  Temperature:   72.84 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     318  |  Battery:   12.62V  |  Temperature:   72.84 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2940 rpm  |  Revolutions:     367  |  Battery:   12.62V  |  Temperature:   72.84 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:     415  |  Battery:   12.62V  |  Temperature:   72.72 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2940 rpm  |  Revolutions:     464  |  Battery:   12.72V  |  Temperature:   72.61 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     513  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     561  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2940 rpm  |  Revolutions:     610  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:     659  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     707  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2940 rpm  |  Revolutions:     756  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     805  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:     853  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:     902  |  Battery:   12.72V  |  Temperature:   72.16 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2940 rpm  |  Revolutions:     951  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:     999  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1047  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1095  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1143  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1192  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1240  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1288  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2940 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1337  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1385  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2940 rpm  |  Revolutions:    1434  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1482  |  Battery:   12.72V  |  Temperature:   72.16 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1530  |  Battery:   12.72V  |  Temperature:   72.16 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1578  |  Battery:   12.72V  |  Temperature:   72.16 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1627  |  Battery:   12.72V  |  Temperature:   72.16 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1675  |  Battery:   12.72V  |  Temperature:   72.16 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1724  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1772  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1820  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1868  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1917  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    1965  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2700 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2010  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2220 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2047  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  1800 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2077  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  1680 rpm  |  Fan2:  2820 rpm  |  Revolutions:    2105  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2520 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2147  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2640 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2192  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  1800 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2222  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2100 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2257  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2700 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2302  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2640 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2347  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2100 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2382  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  1620 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2410  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  1560 rpm  |  Fan2:  2820 rpm  |  Revolutions:    2436  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  1620 rpm  |  Fan2:  2820 rpm  |  Revolutions:    2463  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2520 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2505  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2820 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2553  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2880 rpm  |  Revolutions:    2601  |  Battery:   12.72V  |  Temperature:    72.5 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2820 rpm  |  Revolutions:    2649  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2880 rpm  |  Fan2:  2400 rpm  |  Revolutions:    2697  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2820 rpm  |  Fan2:  1500 rpm  |  Revolutions:    2744  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2820 rpm  |  Fan2:   900 rpm  |  Revolutions:    2791  |  Battery:   12.72V  |  Temperature:   72.39 F  |  Pressure:     16.6 psi
+Fan1:  2820 rpm  |  Fan2:  1620 rpm  |  Revolutions:    2838  |  Battery:   12.72V  |  Temperature:   72.28 F  |  Pressure:     16.6 psi
+

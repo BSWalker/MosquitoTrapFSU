@@ -220,7 +220,7 @@ int MosqSharedMem::GetFan2RPM(void) const
 long int MosqSharedMem::GetTotalFanRev(void) const
 {
 	Lock();
-	int temp = m_realTimeData_ptr->totalFanRotations;
+	long int temp = m_realTimeData_ptr->totalFanRotations;
 	UnLock();
 	return temp;
 }
@@ -228,7 +228,7 @@ long int MosqSharedMem::GetTotalFanRev(void) const
 float MosqSharedMem::GetBattVoltage(void) const
 {
 	Lock();
-	int temp = m_realTimeData_ptr->battVoltage;
+	float temp = m_realTimeData_ptr->battVoltage;
 	UnLock();
         return temp;
 }
@@ -236,7 +236,7 @@ float MosqSharedMem::GetBattVoltage(void) const
 float MosqSharedMem::GetTemperature(void) const
 {
 	Lock();
-	int temp = m_realTimeData_ptr->temperature;
+	float temp = m_realTimeData_ptr->temperature;
         UnLock();
         return temp;
 }
@@ -244,7 +244,7 @@ float MosqSharedMem::GetTemperature(void) const
 float MosqSharedMem::GetCO2Pressure(void) const
 {
 	Lock();
-	int temp = m_realTimeData_ptr->CO2pressure;
+	float temp = m_realTimeData_ptr->CO2pressure;
         UnLock();
         return temp;
 }

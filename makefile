@@ -8,13 +8,16 @@
 CC = g++ -std=c++11 -Wall -Wextra -I.
 LNK = -lpthread -lrt -lwiringPi
 
-all: crontab_file_gen.x fansense.x tempsense.x sensortest.x logsensors.x adc.x start_collection.x stop_collection.x trap_test.x pressure_sensor.x
+all: crontab_file_gen.x fansense.x tempsense.x sensortest.x logsensors.x adc.x start_collection.x stop_collection.x trap_test.x pressure_sensor.x startup.x
 
 crontab_file_gen.x: crontab_file_generator.cpp
 	$(CC) -o crontab_file_gen.x crontab_file_generator.cpp
 
 shmtest.x: shmtest.o lmosqshm.a
 	$(CC) -o shmtest.x shmtest.o mosq_shm.o $(LNK)
+
+startup.x: on_startup.cpp
+	$(CC) -o startup.x on_startup.cpp $(LNK)
 
 shmtest2.x: shmtest2.o lmosqshm.a
 	$(CC) -o shmtest2.x shmtest2.o mosq_shm.o $(LNK)
