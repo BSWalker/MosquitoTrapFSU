@@ -17,8 +17,10 @@
 
 int main(void)
 {
+    wiringPiSetup();
+
     // pin number
-    int solenoid = 15;
+    int solenoid = 16;
 
     // turn off solenoid
     pinMode(solenoid, OUTPUT);

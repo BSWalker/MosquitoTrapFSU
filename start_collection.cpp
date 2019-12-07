@@ -30,18 +30,17 @@ timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
 collectionLog << timestamp << "|| Starting Collection\n";
 collectionLog.close();
 
+wiringPiSetup();
+
 //variables for pins to make code more readable
-int fan1 = 11;
-int fan2 =13;
-int solenoid = 15;
+int fan = 15;
+int solenoid = 16;
 
 //setting up GPIO pins
 
-pinMode(fan1, OUTPUT);
-pinMode(fan2, OUTPUT);
+pinMode(fan, OUTPUT);
 pinMode(solenoid, OUTPUT);
-digitalWrite(fan1, LOW);
-digitalWrite(fan2, LOW);
+digitalWrite(fan, LOW);
 digitalWrite(solenoid, HIGH);
 
 return 0;

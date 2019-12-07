@@ -18,9 +18,8 @@
 #include <iomanip>
 
 int fan1 = 15;
-//int fan2 = 13;
 int solenoid = 16;
-                
+
 // variables for status light pins
 int ledBlue = 27;
 int ledGreen = 28;
@@ -29,7 +28,7 @@ int ledRed = 29;
 void TestStartup();
 void TestVerbose();
 void TestBluetooth();
- 
+
 int main (int argc, char* argv[])
 {
 
@@ -47,13 +46,11 @@ testLog << timestamp << "|| Starting Trap test on boot\n";
     wiringPiSetup();
     //setting up GPIO pins
     pinMode(fan1, OUTPUT);
-    //pinMode(fan2, OUTPUT);
     pinMode(solenoid, OUTPUT);
     pinMode(ledGreen, OUTPUT);
     pinMode(ledRed, OUTPUT);
     pinMode(ledBlue,OUTPUT);
     digitalWrite(fan1, HIGH);
-    //digitalWrite(fan2, HIGH);
     digitalWrite(solenoid, LOW);
     digitalWrite(ledGreen, LOW);
     digitalWrite(ledRed, LOW);
@@ -81,6 +78,8 @@ void TestStartup()
     testLog << timestamp << "|| Starting Trap test on boot\n";
   
     //Fan 1 for 4 seconds
+    digitalWrite(fan1, HIGH);
+    delay(2000);
     digitalWrite(fan1, LOW);
     delay(4000);
     digitalWrite(fan1, HIGH);
@@ -90,7 +89,7 @@ void TestStartup()
     digitalWrite(fan2, LOW);
     delay(4000);
     digitalWrite(fan2, HIGH);
-    delay(2000);
+    delay(2000)
 */
     //click the solenoid on and off 3 times
     digitalWrite(solenoid, HIGH);

@@ -8,18 +8,15 @@
 CC = g++ -std=c++11 -Wall -Wextra -I.
 LNK = -lpthread -lrt -lwiringPi
 
-all: crontab_file_gen.x fansense.x tempsense.x sensortest.x logsensors.x adc.x start_collection.x stop_collection.x trap_test.x pressure_sensor.x startup.x
+all: crontab_file_gen.x fansense.x tempsense.x logsensors.x adc.x start_collection.x stop_collection.x trap_test.x pressure_sensor.x 
 
 crontab_file_gen.x: crontab_file_generator.cpp
 	$(CC) -o crontab_file_gen.x crontab_file_generator.cpp
 
-shmtest.x: shmtest.o lmosqshm.a
+shmtest.x: shmtest.o
 	$(CC) -o shmtest.x shmtest.o mosq_shm.o $(LNK)
 
-startup.x: on_startup.cpp
-	$(CC) -o startup.x on_startup.cpp $(LNK)
-
-shmtest2.x: shmtest2.o lmosqshm.a
+shmtest2.x: shmtest2.o
 	$(CC) -o shmtest2.x shmtest2.o mosq_shm.o $(LNK)
 
 fansense.x: fan_rpm_sense.o mosq_shm.o
@@ -43,22 +40,16 @@ stop_collection.x: stop_collection.o
 trap_test.x: trap_test.o
 	$(CC) -o trap_test.x trap_test.o mosq_shm.o $(LNK)
 
-sensortest.x: sensortest.o
-	$(CC) -o sensortest.x sensortest.o mosq_shm.o $(LNK)
-
 logsensors.x: logsensors.o mosq_shm.o
 	$(CC) -o logsensors.x logsensors.o mosq_shm.o $(LNK)
 
 mosq_shm.o: mosq_shm.cpp mosq_shm.h
 	$(CC) -c mosq_shm.cpp $(LNK)
 
-lmosqshm.a: mosq_shm.o
-	ar -cvq lmosqshm.a mosq_shm.o
-
-shmtest.o: shmtest.cpp lmosqshm.a
+shmtest.o: shmtest.cpp
 	$(CC) -c shmtest.cpp $(LNK)
 
-shmtest2.o: shmtest2.cpp lmosqshm.a
+shmtest2.o: shmtest2.cpp
 	$(CC) -c shmtest2.cpp $(LNK)
 
 fan_rpm_sense.o: fan_rpm_sense.cpp

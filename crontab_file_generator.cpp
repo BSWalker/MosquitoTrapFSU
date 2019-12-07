@@ -104,9 +104,9 @@ int main(int argc, char* argv[])
 	}
 
 	// declare string headers and section dividers
-	std::string bootScript = "@reboot python3 /home/pi/MosquitoTrapFSU/startup.x &\n";
-	std::string startScript = "python3 /home/pi/MosquitoTrapFSU/start_collection.x\n";
-	std::string stopScript = "python3 /home/pi/MosquitoTrapFSU/stop_collection.x\n";
+	std::string bootScript = "@reboot /home/mosqtrap/MosquitoTrapFSU/trap_test.x &\n";
+	std::string startScript = "/home/mosqtrap/MosquitoTrapFSU/startcollection.sh\n";
+	std::string stopScript = "/home/mosqtrap/MosquitoTrapFSU/stopcollection.sh\n";
 	std::string divider = "#========================================================#\n";
 	std::string welcome = "#    WELCOME TO FSU MOSQUITO TRAP COLLECTION SCHEDULE    #\n";
 	std::string boot = "#                        ON BOOT                         #\n";
