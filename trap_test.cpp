@@ -16,18 +16,36 @@
 #include <wiringPi.h>
 #include <string>
 #include <iomanip>
+#include "log.h"
 
-int fan1 = 15;
-int solenoid = 16;
+//const int fan1 = 15;
+//const int solenoid = 16;
 
 // variables for status light pins
-int ledBlue = 27;
-int ledGreen = 28;
-int ledRed = 29;
+//const int ledBlue = 27;
+//const int ledGreen = 28;
+//const int ledRed = 29;
+
+#define FAN1_ERR 0
+#define FAN2_ERR 1
+#define LO_PRESSURE 2
+#define HI_PRESSURE 3
+#define SOLENOID_ERR 4
+#define BATT_ERR 5
+
+#define FAN 15
+#define SOLENOID 16
+
+#define LED_GRN 28
+#define LED_RED 29
+#define LED_BLU 27
 
 void TestStartup();
 void TestVerbose();
-void TestBluetooth();
+//void TestBluetooth();
+//void LEDnotify(unisgned int color, unsigned int numFlashes);
+void FlashRed(unsigned int t);
+void LEDshowResults(bool isPassed, bool *testFlags);
 
 int main (int argc, char* argv[])
 {
@@ -45,16 +63,16 @@ testLog << timestamp << "|| Starting Trap test on boot\n";
 */
     wiringPiSetup();
     //setting up GPIO pins
-    pinMode(fan1, OUTPUT);
-    pinMode(solenoid, OUTPUT);
-    pinMode(ledGreen, OUTPUT);
-    pinMode(ledRed, OUTPUT);
-    pinMode(ledBlue,OUTPUT);
-    digitalWrite(fan1, HIGH);
-    digitalWrite(solenoid, LOW);
-    digitalWrite(ledGreen, LOW);
-    digitalWrite(ledRed, LOW);
-    digitalWrite(ledBlue,LOW);
+    pinMode(FAN, OUTPUT);
+    pinMode(SOLENOID, OUTPUT);
+    pinMode(LED_GRN, OUTPUT);
+    pinMode(LED_RED, OUTPUT);
+    pinMode(LED_BLU,OUTPUT);
+    digitalWrite(FAN, HIGH);
+    digitalWrite(SOLENOID, LOW);
+    digitalWrite(LED_GRN, LOW);
+    digitalWrite(LED_RED, LOW);
+    digitalWrite(LED_BLU,LOW);
 
     if(argc == 0)
         TestStartup();
@@ -67,55 +85,79 @@ testLog << timestamp << "|| Starting Trap test on boot\n";
 
 void TestStartup() 
 {
-    //Write Timestamp to log
-    std::ofstream testLog;
-    testLog.open("/home/pi/mosquito/logs/testlog.txt");
-    time_t rawtime;
-    time(&rawtime);
-    struct tm* timeDate = localtime(&rawtime);
-    char* timestamp = asctime(timeDate);
-    timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
-    testLog << timestamp << "|| Starting Trap test on boot\n";
+    MosqSharedMem myMem(MosqSharedMem::A_READ);
+    bool testPassed = true;
+    bool testFlags[5] = {1};
+    Log testLog("/home/mosqtrap/mosquito/logs/boot_test_log.txt");
+
+    testLog.WriteLog("Starting Trap test on boot\n");
   
-    //Fan 1 for 4 seconds
-    digitalWrite(fan1, HIGH);
-    delay(2000);
-    digitalWrite(fan1, LOW);
+    //Fans for 5 seconds
+    digitalWrite(FAN, LOW);
+    delay(1000);
+    if(myMem.GetFan1RPM() < 1000)
+    {
+        std::string msg = "Error: Low Fan 1 RPM Detected - " + std::to_string(myMem.GetFan1RPM()) + " RPM";
+        testLog.WriteLog(msg);
+        testFlags[FAN1_ERR] = testPassed = false;
+    }
+    if(myMem.GetFan2RPM() < 1000)
+    {
+        std::string msg = "Error: Low Fan 2 RPM Detected - " + std::to_string(myMem.GetFan2RPM()) + " RPM";
+        testLog.WriteLog(msg);
+        testFlags[FAN2_ERR] = testPassed = false;
+    }
     delay(4000);
-    digitalWrite(fan1, HIGH);
+    digitalWrite(FAN, HIGH);
     delay(2000);
-/*
-    //Fan 2 for 4 seconds
-    digitalWrite(fan2, LOW);
-    delay(4000);
-    digitalWrite(fan2, HIGH);
-    delay(2000)
-*/
+
+    // test ambient line pressure
+    if(myMem.GetCO2Pressure() < 10)
+    {
+        std::string msg = "Error: Low Line Pressure Detected - " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
+        testLog.WriteLog(msg);
+        testFlags[LO_PRESSURE] = testPassed = false;
+    }
+    if(myMem.GetCO2Pressure() > 20)
+    {
+        std::string msg = "Error: High Line Pressure Detected - " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
+        testLog.WriteLog(msg);
+        testFlags[HI_PRESSURE] = testPassed = false;
+    }
+    
     //click the solenoid on and off 3 times
-    digitalWrite(solenoid, HIGH);
-    delay(1000);
-    digitalWrite(solenoid, LOW);
-    delay(1000);
-    digitalWrite(solenoid, HIGH);
-    delay(1000);
-    digitalWrite(solenoid, LOW);
-    delay(1000);
-    digitalWrite(solenoid, HIGH);
-    delay(1000);
-    digitalWrite(solenoid, LOW);
-    delay(1000);
+    float pressure1 = myMem.GetCO2Pressure();
+    float pressure2 = 0;
+    digitalWrite(SOLENOID, HIGH);
+    delay(3000);
+    pressure2 = myMem.GetCO2Pressure();
+    if(pressure2 > pressure1 - 0.5)
+    {
+        testLog.WriteLog("Error: Solenoid Error Detected - Insufficient Pressure Change When Active");
+        testFlags[SOLENOID_ERR] = testPassed = false;
+    }
+    digitalWrite(SOLENOID, LOW);
+    delay(2000);
+    pressure1 = myMem.GetCO2Pressure();
+    if(pressure1 < pressure2 + 0.5)
+    {
+        testLog.WriteLog("Error: Solenoid Error Detected - Failed to Close or Bad Seal");
+        testFlags[SOLENOID_ERR] = testPassed = false;
+    }
+    digitalWrite(SOLENOID, HIGH);
 
-    //write completed message to log
-    timestamp = asctime(timeDate);
-    timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
-    testLog << timestamp << "|| Startup test completed\n";
-    testLog.close();
+    if(myMem.GetBattVoltage() < 10)
+    {
+        testLog.WriteLog("Warning: Low Startup Battery Voltage Detected");
+        testFlags[BATT_ERR] = testPassed = false;
+    }
+    
+    std::string msg = "Startup Test Complete with" + testPassed ? " no " : " ";
+    msg += "errors";
+    testLog.WriteLog(msg);
+    LEDshowResults(testPassed, testFlags);
 
-    //display reassuring green led for 30 seconds, smile and wave
-    digitalWrite(ledRed, LOW);
-    digitalWrite(ledGreen,HIGH);
-    delay(30000);
-    digitalWrite(ledGreen, LOW);
+    myMem.ReleaseSensors();
 
     return;
 }
@@ -125,7 +167,7 @@ void TestVerbose()
     MosqSharedMem myMem(MosqSharedMem::A_READ | MosqSharedMem::A_WRITE);
     myMem.Dump();
     
-    digitalWrite(fan1, LOW);
+    digitalWrite(FAN, LOW);
 
 float batt = 0;
 float temp = 0;
@@ -148,17 +190,51 @@ press = myMem.GetCO2Pressure();
         std::cout << "  |  Pressure: " << std::setw(8) << std::setprecision(3) << press << " psi";
         
         if(i == 15)
-            digitalWrite(solenoid, HIGH);
+            digitalWrite(SOLENOID, HIGH);
 
         delay(1000);                              
     }
     
     std::cout << "\n\n";
-    digitalWrite(fan1, HIGH);
-    digitalWrite(solenoid, LOW);
+    digitalWrite(FAN, HIGH);
+    digitalWrite(SOLENOID, LOW);
 
     myMem.ReleaseSensors();
           
     return;
 
+}
+
+void LEDshowResults(bool testPassed, bool *testFlags)
+{
+    if(testPassed)
+    {
+        digitalWrite(LED_GRN, HIGH);
+        delay(5000);
+        digitalWrite(LED_GRN, LOW);
+        return;
+    }
+
+    for(unsigned int i = 0; i < 6; ++i)
+    {
+        if(!testFlags[i])
+        {
+            FlashRed(i+1);
+            delay(1000);
+        }
+    }
+
+    digitalWrite(LED_BLU, HIGH);
+    delay(5000);
+    digitalWrite(LED_BLU, LOW);
+}
+
+void FlashRed(unsigned int t)
+{
+    for(unsigned int i = 0; i < t; ++i)
+    {
+        digitalWrite(LED_RED, HIGH);
+        delay(500);
+        digitalWrite(LED_RED, LOW);
+    }
 }

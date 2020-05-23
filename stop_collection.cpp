@@ -13,6 +13,7 @@
 #include <time.h>
 #include <cstring>
 #include <wiringPi.h>
+#include "log.h"
 
 
 int main(void)
@@ -27,15 +28,8 @@ int main(void)
     digitalWrite(solenoid, LOW);
 
     // write to event log
-    std::ofstream collectionLog;
-    collectionLog.open("/home/pi/mosquito_log/collectionlog.txt");
-    time_t rawtime;
-    time(&rawtime);
-    struct tm* timeDate = localtime(&rawtime);
-    char* timestamp = asctime(timeDate);
-    timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
-    collectionLog << timestamp << ":|| Stopping Collection\n";
-    collectionLog.close();
+    Log collectionLog("/home/mosqtrap/mosquito/logs/event_log.txt");
+    collectionLog.WriteLog("Stopping Collection");
 
     return 0;
 }

@@ -31,14 +31,14 @@ adc.x: adc.o
 pressure_sensor.x: pressure_sensor.o
 	$(CC) -o pressure_sensor.x pressure_sensor.o mosq_shm.o $(LNK)
 				 
-start_collection.x: start_collection.o
-	$(CC) -o start_collection.x start_collection.o mosq_shm.o $(LNK)
+start_collection.x: start_collection.o log.o
+	$(CC) -o start_collection.x start_collection.o mosq_shm.o log.o $(LNK)
 					    
-stop_collection.x: stop_collection.o
-	$(CC) -o stop_collection.x stop_collection.o mosq_shm.o $(LNK)
+stop_collection.x: stop_collection.o log.o
+	$(CC) -o stop_collection.x stop_collection.o mosq_shm.o log.o $(LNK)
 
-trap_test.x: trap_test.o
-	$(CC) -o trap_test.x trap_test.o mosq_shm.o $(LNK)
+trap_test.x: trap_test.o log.o
+	$(CC) -o trap_test.x trap_test.o mosq_shm.o log.o $(LNK)
 
 logsensors.x: logsensors.o mosq_shm.o
 	$(CC) -o logsensors.x logsensors.o mosq_shm.o $(LNK)
@@ -78,4 +78,7 @@ stop_collection.o: stop_collection.cpp
 							   
 trap_test.o: trap_test.cpp
 	$(CC) -c trap_test.cpp
+
+log.o: log.h log.cpp	
+	$(CC) -c log.cpp
 
