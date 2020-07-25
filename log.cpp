@@ -31,7 +31,7 @@ void Log::WriteLog(std::string & message)
 	char* timestamp = asctime(timeDate);
 	timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
 
-	_filestream << timestamp << "|| " << message << '\n';
+	_filestream << timestamp << " || " << message << '\n';
 	_filestream.close();
 }
 
@@ -46,6 +46,6 @@ void Log::WriteLog(const std::string & message)
 	char* timestamp = asctime(timeDate);
 	timestamp[strlen(timestamp) - 1] = 0; // remove newline character from string
 
-	_filestream << timestamp << "|| " << message << '\n';
+	_filestream << timestamp << " || " << message << '\n';
 	_filestream.close();
 }

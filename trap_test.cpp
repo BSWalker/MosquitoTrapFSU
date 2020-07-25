@@ -74,7 +74,7 @@ testLog << timestamp << "|| Starting Trap test on boot\n";
     digitalWrite(LED_RED, LOW);
     digitalWrite(LED_BLU,LOW);
 
-    if(argc == 0)
+    if(argc == 1)
         TestStartup();
     else 
         TestVerbose();
@@ -87,23 +87,25 @@ void TestStartup()
 {
     MosqSharedMem myMem(MosqSharedMem::A_READ);
     bool testPassed = true;
-    bool testFlags[5] = {1};
-    Log testLog("/home/mosqtrap/mosquito/logs/boot_test_log.txt");
+    bool testFlags[6] = {1,1,1,1,1,1};
+    Log testLog("/home/mosqtrap/mosquito/logs/boot-test-log.txt");
 
-    testLog.WriteLog("Starting Trap test on boot\n");
-  
+    testLog.WriteLog("Starting Trap test on boot");
+
+    std::cout << "\nStarting Fan Test";
+
     //Fans for 5 seconds
     digitalWrite(FAN, LOW);
-    delay(1000);
+    delay(5000);
     if(myMem.GetFan1RPM() < 1000)
     {
-        std::string msg = "Error: Low Fan 1 RPM Detected - " + std::to_string(myMem.GetFan1RPM()) + " RPM";
+        std::string msg = "Error: Low Fan 1 RPM Detected: " + std::to_string(myMem.GetFan1RPM()) + " RPM";
         testLog.WriteLog(msg);
         testFlags[FAN1_ERR] = testPassed = false;
     }
     if(myMem.GetFan2RPM() < 1000)
     {
-        std::string msg = "Error: Low Fan 2 RPM Detected - " + std::to_string(myMem.GetFan2RPM()) + " RPM";
+        std::string msg = "Error: Low Fan 2 RPM Detected: " + std::to_string(myMem.GetFan2RPM()) + " RPM";
         testLog.WriteLog(msg);
         testFlags[FAN2_ERR] = testPassed = false;
     }
@@ -111,27 +113,32 @@ void TestStartup()
     digitalWrite(FAN, HIGH);
     delay(2000);
 
+    std::cout << "\nFinished Fan Test, testing ambient pressure";
+
     // test ambient line pressure
     if(myMem.GetCO2Pressure() < 10)
     {
-        std::string msg = "Error: Low Line Pressure Detected - " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
+        std::cout << "\nLow Pressure Detected";
+        std::string msg = "Error: Low Line Pressure Detected: " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
         testLog.WriteLog(msg);
         testFlags[LO_PRESSURE] = testPassed = false;
     }
     if(myMem.GetCO2Pressure() > 20)
     {
-        std::string msg = "Error: High Line Pressure Detected - " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
+        std::string msg = "Error: High Line Pressure Detected: " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
         testLog.WriteLog(msg);
         testFlags[HI_PRESSURE] = testPassed = false;
     }
-    
-    //click the solenoid on and off 3 times
+
+    std::cout << "\nTesting Solenoid Activation";
+
+    //check solenoid activation
     float pressure1 = myMem.GetCO2Pressure();
     float pressure2 = 0;
     digitalWrite(SOLENOID, HIGH);
     delay(3000);
     pressure2 = myMem.GetCO2Pressure();
-    if(pressure2 > pressure1 - 0.5)
+    if(pressure2 > pressure1 - 0.5 && testFlags[LO_PRESSURE]) // low pressure error creates false flag
     {
         testLog.WriteLog("Error: Solenoid Error Detected - Insufficient Pressure Change When Active");
         testFlags[SOLENOID_ERR] = testPassed = false;
@@ -139,21 +146,29 @@ void TestStartup()
     digitalWrite(SOLENOID, LOW);
     delay(2000);
     pressure1 = myMem.GetCO2Pressure();
-    if(pressure1 < pressure2 + 0.5)
+    if(pressure1 < pressure2 + 0.5 && testFlags[LO_PRESSURE]) // low pressure error creates false flag
     {
         testLog.WriteLog("Error: Solenoid Error Detected - Failed to Close or Bad Seal");
         testFlags[SOLENOID_ERR] = testPassed = false;
     }
     digitalWrite(SOLENOID, HIGH);
 
+    std::cout << "\nTesting Battery Voltage";
+
     if(myMem.GetBattVoltage() < 10)
     {
-        testLog.WriteLog("Warning: Low Startup Battery Voltage Detected");
+        std::string msg = "Warning: Low Startup Battery Voltage Detected: " + std::to_string(myMem.GetBattVoltage()) + " V";
+        testLog.WriteLog(msg);
         testFlags[BATT_ERR] = testPassed = false;
     }
-    
-    std::string msg = "Startup Test Complete with" + testPassed ? " no " : " ";
+
+    std::string msg = "Startup Test Complete with";
+    if(testPassed)
+       msg += " no ";
+    else
+       msg += " ";
     msg += "errors";
+    std::cout << '\n' << msg << std::endl;
     testLog.WriteLog(msg);
     LEDshowResults(testPassed, testFlags);
 
@@ -207,10 +222,12 @@ press = myMem.GetCO2Pressure();
 
 void LEDshowResults(bool testPassed, bool *testFlags)
 {
+    std::cout << "\nLED Show Results";
     if(testPassed)
     {
+        std::cout << " - Holding LED Green" << std::endl;
         digitalWrite(LED_GRN, HIGH);
-        delay(5000);
+        delay(15000);
         digitalWrite(LED_GRN, LOW);
         return;
     }
@@ -220,21 +237,24 @@ void LEDshowResults(bool testPassed, bool *testFlags)
         if(!testFlags[i])
         {
             FlashRed(i+1);
-            delay(1000);
+            delay(3000);
         }
     }
 
     digitalWrite(LED_BLU, HIGH);
-    delay(5000);
+    std::cout << "\nHolding Blue LED" << std::endl;
+    delay(10000);
     digitalWrite(LED_BLU, LOW);
 }
 
 void FlashRed(unsigned int t)
 {
+    std::cout << "\nFlashing Led: ";
     for(unsigned int i = 0; i < t; ++i)
     {
         digitalWrite(LED_RED, HIGH);
-        delay(500);
+        std::cout << "R " << std::endl;
+        delay(1000);
         digitalWrite(LED_RED, LOW);
     }
 }

@@ -28,7 +28,7 @@ int main(void)
     digitalWrite(solenoid, LOW);
 
     // write to event log
-    Log collectionLog("/home/mosqtrap/mosquito/logs/event_log.txt");
+    Log collectionLog("/home/mosqtrap/mosquito/logs/event-log.txt");
     collectionLog.WriteLog("Stopping Collection");
 
     return 0;

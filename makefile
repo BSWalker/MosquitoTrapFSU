@@ -8,7 +8,7 @@
 CC = g++ -std=c++11 -Wall -Wextra -I.
 LNK = -lpthread -lrt -lwiringPi
 
-all: crontab_file_gen.x fansense.x tempsense.x logsensors.x adc.x start_collection.x stop_collection.x trap_test.x pressure_sensor.x 
+all: crontab_file_gen.x fansense.x tempsense.x adc.x start_collection.x stop_collection.x trap_test.x pressure_sensor.x 
 
 crontab_file_gen.x: crontab_file_generator.cpp
 	$(CC) -o crontab_file_gen.x crontab_file_generator.cpp
@@ -40,8 +40,8 @@ stop_collection.x: stop_collection.o log.o
 trap_test.x: trap_test.o log.o
 	$(CC) -o trap_test.x trap_test.o mosq_shm.o log.o $(LNK)
 
-logsensors.x: logsensors.o mosq_shm.o
-	$(CC) -o logsensors.x logsensors.o mosq_shm.o $(LNK)
+#logsensors.x: logsensors.o mosq_shm.o
+#	$(CC) -o logsensors.x logsensors.o mosq_shm.o $(LNK)
 
 mosq_shm.o: mosq_shm.cpp mosq_shm.h
 	$(CC) -c mosq_shm.cpp $(LNK)
@@ -61,8 +61,8 @@ temp_sense.o: temp_sense.cpp
 sensortest.o: sensortest.cpp
 	$(CC) -c sensortest.cpp $(LNK)
 
-logsensors.o: logsensors.cpp
-	$(CC) -c logsensors.cpp $(LNK)
+#logsensors.o: logsensors.cpp
+#	$(CC) -c logsensors.cpp $(LNK)
 
 adc.o: adc.cpp
 	$(CC) -c adc.cpp

@@ -2,4 +2,4 @@
 ./tempsense.x &
 ./adc.x &
 ./pressure_sensor.x &
-./start_collection.x
+./trap_test.x

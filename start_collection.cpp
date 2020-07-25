@@ -10,11 +10,13 @@
 #include <fcntl.h>
 #include <semaphore.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <time.h>
 #include <cstring>
 #include <wiringPi.h>
 #include "log.h"
+#include "mosq_shm.h"
 
 #define FAN1_ERR 0
 #define FAN2_ERR 1
@@ -22,20 +24,26 @@
 #define HI_PRESSURE 3
 #define SOLENOID_ERR 4
 #define BATT_ERR 5
+#define Hi_TEMP 6
 
 std::string GenerateFileName();
-void LogSensorData(MosqSharedMem);
-void TestSensors(MosqSharedMem);
+void LogSensorData(MosqSharedMem &, Log &);
+void TestSensors(MosqSharedMem &);
 
 int main(void)
 {
-    MosqSharedMem myMem(MosqSharedMem::A_READ||MosqSharedMem::A_WRITE);
+    std::cout << "Start\n";
+    MosqSharedMem myMem(MosqSharedMem::A_READ | MosqSharedMem::A_WRITE);
+    std::cout << "SharedMem init";
     myMem.RegisterPID();
-    Log collectionLog("/home/mosqtrap/mosquito/logs/event_log.txt");
+    std::cout << "RegisterPID\n";
+    Log collectionLog("/home/mosqtrap/mosquito/logs/event-log.txt");
     collectionLog.WriteLog("Starting Collection");
     Log data(GenerateFileName());
 
     wiringPiSetup();
+
+    std::cout << "passed variable setup\n";
 
     //variables for pins to make code more readable
     int fan = 15;
@@ -53,9 +61,9 @@ int main(void)
     do
     {
         LogSensorData(myMem, data);
-        for(int i = 0; i < 300; ++i) // delay 5 minutes between collection entries
+        for(int i = 0; i < 300; ++i) // (300) delay 5 minutes between collection entries
         {
-            TestSensors(myMem); // test every seconds
+            TestSensors(myMem); // test every second
             delay(1000);
         }
     } while(1);
@@ -67,21 +75,42 @@ int main(void)
 // the file is used to store sensor data for the collection period
 std::string GenerateFileName()
 {
-"/home/moqtrap/mosquito/collection_data/<filename>"
+    std::string path = "/home/mosqtrap/mosquito/collection-data/";
+    std::string filename;
+    // current date/time based on current system
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    filename = std::to_string(1 + ltm->tm_mon) + '.' + std::to_string(ltm->tm_mday) + '.' + std::to_string(1900 + ltm->tm_year)
+                            + '.' + std::to_string(1+ltm->tm_hour) + ':' + std::to_string(1+ltm->tm_min) + ".txt";
+
+    std::cout << filename << '\n';
+    filename = path + filename;
+    std::cout << filename << '\n';
+
+    return filename;                        
+    
+    /*// print various components of tm structure.
+    cout << "Year:" << 1900 + ltm->tm_year << endl;
+    cout << "Month: "<< 1 + ltm->tm_mon<< endl;
+    cout << "Day: "<<  ltm->tm_mday << endl;
+    cout << "Time: "<< 1 + ltm->tm_hour << ":";
+    cout << 1 + ltm->tm_min << ":";
+    cout << 1 + ltm->tm_sec << endl;*/
 }
 
 
 // saves sensor data to a collection log file
-void LogSensorData(MosqSharedMem myMem, Log data)
+void LogSensorData(MosqSharedMem & myMem, Log & data)
 {
     std::stringstream ss;
 
     ss << "Fan1:" << std::setw(6) << myMem.GetFan1RPM() << " rpm";
     ss << "  |  Fan2:" << std::setw(6) << myMem.GetFan2RPM() << " rpm";
     ss << "  |  Revolutions:" << std::setw(8) << myMem.GetTotalFanRev();
-    ss << "  |  Battery:" << std::setw(8) << std::setprecision(4) << batt << "V";;
-    ss << "  |  Temperature:" << std::setw(8) << std::setprecision(4) << temp << " F";
-    ss << "  |  Pressure: " << std::setw(8) << std::setprecision(3) << press << " psi\n";
+    ss << "  |  Battery:" << std::setw(8) << std::setprecision(4) << myMem.GetBattVoltage() << "V";;
+    ss << "  |  Temperature:" << std::setw(8) << std::setprecision(4) << myMem.GetTemperature() << " F";
+    ss << "  |  Pressure: " << std::setw(8) << std::setprecision(3) << myMem.GetCO2Pressure() << " psi";
   
     data.WriteLog(ss.str()); //https://www.tutorialspoint.com/stringstream-in-cplusplus
 }
@@ -89,10 +118,10 @@ void LogSensorData(MosqSharedMem myMem, Log data)
 
 // check for error conditions  based on sensor readings and log in error log
 // each error is reported only once for now
-void TestSensors(MosqSharedMem myMem)
+void TestSensors(MosqSharedMem & myMem)
 {
-    static bool errorFlags[5] = {1};
-    Log errorLog("/home/mosqtrap/mosquito/logs/error_log.txt");
+    static bool errorFlags[7] = {1,1,1,1,1,1,1};
+    Log errorLog("/home/mosqtrap/mosquito/logs/error-log.txt");
     if(myMem.GetFan1RPM() < 1000 && errorFlags[FAN1_ERR])
     {
         std::string msg = "Error: Low Fan 1 RPM Detected - " + std::to_string(myMem.GetFan1RPM()) + " RPM";
@@ -142,6 +171,13 @@ void TestSensors(MosqSharedMem myMem)
         std::string msg = "Warning: Low Battery Voltage Detected - " + std::to_string(myMem.GetBattVoltage()) + " V";
         errorLog.WriteLog(msg);
         errorFlags[BATT_ERR] = false;
+    }
+
+    if(myMem.GetTemperature() > 99 && errorFlags[Hi_TEMP])
+    {
+        std::string msg = "Warning: High Ambient Temperature Detected - " + std::to_string(myMem.GetTemperature()) + " F";
+        errorLog.WriteLog(msg);
+        errorFlags[Hi_TEMP] = false;
     }
     
 }
