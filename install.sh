@@ -8,6 +8,8 @@ rm -rf $mosquito
 mkdir -p /home/mosqtrap/mosquito/{runnables,logs,collection-data}
 cp $repo/startcollection.sh $run
 cp $repo/stopcollection.sh $run
+cp $repo/start_collection.x $run
+cp $repo/stop_collection.x $run
 cp $repo/boot-test.sh $run
 cp $repo/adc.x $run
 cp $repo/fansense.x $run

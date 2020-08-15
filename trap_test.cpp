@@ -151,7 +151,6 @@ void TestStartup()
         testLog.WriteLog("Error: Solenoid Error Detected - Failed to Close or Bad Seal");
         testFlags[SOLENOID_ERR] = testPassed = false;
     }
-    digitalWrite(SOLENOID, HIGH);
 
     std::cout << "\nTesting Battery Voltage";
 
