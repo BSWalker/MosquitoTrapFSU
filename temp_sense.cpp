@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "mosq_shm.h"
-
+#include <wiringPi.h>
 
 int main (void) {
     DIR *dir;
@@ -17,6 +17,8 @@ int main (void) {
     char path[] = "/sys/bus/w1/devices"; 
     ssize_t numRead;
  
+    wiringPiSetup();
+
     MosqSharedMem myShm(MosqSharedMem::A_WRITE);
     myShm.RegisterPID(); // register PID with master to enable shutdown
     dir = opendir (path);
@@ -54,13 +56,16 @@ int main (void) {
         {
             strncpy(tmpData, strstr(buf, "t=") + 2, 5); 
             float tempC = strtof(tmpData, NULL);
+	    tempC = ((tempC/1000.0)*9.0/5.0+32.0);
+	    if(tempC < 180) // filter out erroneous error conditions
+                myShm.SetTemperature(tempC);
 
-	    myShm.SetTemperature(((tempC/1000.0)*9.0/5.0+32.0));
             //printf("Device: %s  - ", dev); 
             //printf("Temp: %.3f C  ", tempC / 1000);
             //printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
         }
         close(fd);
+	delay(2000);
     } 
         /* return 0; --never called due to loop */
 }

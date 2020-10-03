@@ -49,8 +49,9 @@ int main(void)
     int fan = 15;
     int solenoid = 16;
 
-    //setting up GPIO pins
+    LogSensorData(myMem, data);
 
+    //setting up GPIO pins
     pinMode(fan, OUTPUT);
     pinMode(solenoid, OUTPUT);
     digitalWrite(fan, LOW);
@@ -88,15 +89,7 @@ std::string GenerateFileName()
     filename = path + filename;
     std::cout << filename << '\n';
 
-    return filename;                        
-    
-    /*// print various components of tm structure.
-    cout << "Year:" << 1900 + ltm->tm_year << endl;
-    cout << "Month: "<< 1 + ltm->tm_mon<< endl;
-    cout << "Day: "<<  ltm->tm_mday << endl;
-    cout << "Time: "<< 1 + ltm->tm_hour << ":";
-    cout << 1 + ltm->tm_min << ":";
-    cout << 1 + ltm->tm_sec << endl;*/
+    return filename;
 }
 
 
@@ -106,11 +99,11 @@ void LogSensorData(MosqSharedMem & myMem, Log & data)
     std::stringstream ss;
 
     ss << "Fan1:" << std::setw(6) << myMem.GetFan1RPM() << " rpm";
-    ss << "  |  Fan2:" << std::setw(6) << myMem.GetFan2RPM() << " rpm";
-    ss << "  |  Revolutions:" << std::setw(8) << myMem.GetTotalFanRev();
-    ss << "  |  Battery:" << std::setw(8) << std::setprecision(4) << myMem.GetBattVoltage() << "V";;
-    ss << "  |  Temperature:" << std::setw(8) << std::setprecision(4) << myMem.GetTemperature() << " F";
-    ss << "  |  Pressure: " << std::setw(8) << std::setprecision(3) << myMem.GetCO2Pressure() << " psi";
+    ss << " | Fan2:" << std::setw(6) << myMem.GetFan2RPM() << " rpm";
+    ss << " | Revolutions:" << std::setw(8) << myMem.GetTotalFanRev();
+    ss << " | Battery:" << std::setw(6) << std::setprecision(4) << myMem.GetBattVoltage() << "V";;
+    ss << " | Temperature:" << std::setw(6) << std::setprecision(4) << myMem.GetTemperature() << " F";
+    ss << " | Pressure: " << std::setw(8) << std::setprecision(3) << myMem.GetCO2Pressure() << " psi";
   
     data.WriteLog(ss.str()); //https://www.tutorialspoint.com/stringstream-in-cplusplus
 }
@@ -138,44 +131,27 @@ void TestSensors(MosqSharedMem & myMem)
     // test ambient line pressure
     if(myMem.GetCO2Pressure() > 2 && errorFlags[HI_PRESSURE])
     {
-        std::string msg = "Error: Abnormal Line Pressure Detected - " + std::to_string(myMem.GetCO2Pressure()) + " PSI";
+	std::stringstream ss;
+	ss << "  |  Pressure: " << std::setw(8) << std::setprecision(3) << myMem.GetCO2Pressure() << " psi";
+        std::string msg = "Error: Abnormal Line Pressure Detected - " + ss.str();
         errorLog.WriteLog(msg);
         errorFlags[HI_PRESSURE] = false;
     }
 
-    /*
-    //click the solenoid on and off 3 times
-    float pressure1 = myMem.GetCO2Pressure();
-    float pressure2 = 0;
-    digitalWrite(SOLENOID, HIGH);
-    delay(3000);
-    pressure2 = myMem.GetCO2Pressure();
-    if(pressure2 > pressure1 - 0.5)
-    {
-        testLog.WriteLog("Error: Solenoid Error Detected - Insufficient Pressure Change When Active");
-        testFlags[SOLENOID_ERR] = testPassed = false;
-    }
-    digitalWrite(SOLENOID, LOW);
-    delay(2000);
-    pressure1 = myMem.GetCO2Pressure();
-    if(pressure1 < pressure2 + 0.5)
-    {
-        testLog.WriteLog("Error: Solenoid Error Detected - Failed to Close or Bad Seal");
-        testFlags[SOLENOID_ERR] = testPassed = false;
-    }
-    digitalWrite(SOLENOID, HIGH);
-    */
-
     if(myMem.GetBattVoltage() < 6 && errorFlags[BATT_ERR])
     {
-        std::string msg = "Warning: Low Battery Voltage Detected - " + std::to_string(myMem.GetBattVoltage()) + " V";
+	std::stringstream ss;
+	ss << "  |  Battery:" << std::setw(8) << std::setprecision(4) << myMem.GetBattVoltage() << "V";
+        std::string msg = "Warning: Low Battery Voltage Detected - " + ss.str();
         errorLog.WriteLog(msg);
         errorFlags[BATT_ERR] = false;
     }
 
     if(myMem.GetTemperature() > 99 && errorFlags[Hi_TEMP])
     {
-        std::string msg = "Warning: High Ambient Temperature Detected - " + std::to_string(myMem.GetTemperature()) + " F";
+	std::stringstream ss;
+	ss << "  |  Temperature:" << std::setw(8) << std::setprecision(4) << myMem.GetTemperature() << " F";
+        std::string msg = "Warning: High Ambient Temperature Detected - " + ss.str();
         errorLog.WriteLog(msg);
         errorFlags[Hi_TEMP] = false;
     }

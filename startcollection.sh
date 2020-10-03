@@ -3,4 +3,4 @@ $path/fansense.x &
 $path/tempsense.x &
 $path/adc.x &
 $path/pressure_sensor.x &
-$path/start_collection.x
+$path/start_collection.x &

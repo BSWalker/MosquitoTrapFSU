@@ -53,8 +53,9 @@ int main(void)
 
 		pressure = ((((float)digiValue - outputMin)*(pressureMax-pressureMin))/(outputMax-outputMin)) + pressureMin; //pressure output function, see honeywell i2c comms documentation
 		//std::cout << "\nPSI: " << std::setw(5) << pressure; //output to screen
-   		myMem.SetCO2Pressure(pressure);  //writes to shared memory
-   		delay(1000);     
+   		if(pressure < 50) // filter out occasional erroneous sensor value
+		    myMem.SetCO2Pressure(pressure);  //writes to shared memory
+   		delay(1000);
 	}
 
  	return 0;
